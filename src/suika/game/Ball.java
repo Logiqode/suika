@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.awt.Image;
 import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
 
 public class Ball {
     private int x, y, size, type;
@@ -19,50 +18,16 @@ public class Ball {
     }
 
     public void draw(Graphics g) {
-        // Load an image based on the ball's type
-        Image texture = loadTextureForType(type);
+        Image texture = getTextureForType(type);
 
-        // Draw the image instead of filling an oval
         g.drawImage(texture, x - size / 2, y - size / 2, size, size, null);
     }
 
-    public Image loadImage(String fileName) {
-    	Image img = null;
-    	InputStream inputStream = getClass().getResourceAsStream("/suika/game/textures/" + fileName);
-        try {
-            img = ImageIO.read(inputStream);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return img;
-    }
-
-    private Image loadTextureForType(int type) {
-        switch (type) {
-            case 0:
-                return loadImage("straw.png");
-            case 1:
-                return loadImage("peach.png");
-            case 2:
-                return loadImage("mangosteen.png");
-            case 3:
-                return loadImage("lemon.png");
-            case 4:
-                return loadImage("orange.png");
-            case 5:
-                return loadImage("kiwi.png");
-            case 6:
-                return loadImage("apple.png");
-            case 7:
-                return loadImage("pir.png");
-            case 8:
-                return loadImage("melon.png");
-            case 9:
-                return loadImage("pumpkin.png");
-            case 10:
-                return loadImage("watermelon.png");	
-            default:
-            	return loadImage("straw.png");
+    private Image getTextureForType(int type) {
+        if (type >= 0 && type < BallGame.TEXTURES.length) {
+            return BallGame.TEXTURES[type];
+        } else {
+            return BallGame.TEXTURES[0];
         }
     }
     
@@ -80,7 +45,6 @@ public class Ball {
     }
 
     private int calculateTypeFromSize(int size) {
-        // Adjust the logic to follow the specific progression
         if (size <= RADII[0]) return 0;
         else if (size <= RADII[1]) return 1;
         else if (size <= RADII[2]) return 2;
@@ -96,14 +60,13 @@ public class Ball {
 
 
     public void move() {
-        y += 5; // Adjust the value based on the gravity you want
+        y += 5;
     }
 
     public boolean isAlive() {
         return size > 0;
     }
 
-    // Getter and Setter for x
     public int getX() {
         return x;
     }
@@ -112,7 +75,6 @@ public class Ball {
         this.x = x;
     }
 
-    // Getter and Setter for y
     public int getY() {
         return y;
     }
@@ -121,12 +83,10 @@ public class Ball {
         this.y = y;
     }
 
-    // Getter for size
     public int getSize() {
         return size;
     }
 
-    // Getter for type
     public int getType() {
         return type;
     }

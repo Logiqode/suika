@@ -1,15 +1,19 @@
 package suika.game;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+@SuppressWarnings("serial")
 public class BallGame extends JFrame {
     private List<Ball> balls;
     private static final int PAD_X = 24;
@@ -20,6 +24,13 @@ public class BallGame extends JFrame {
     private static final int[] RADII = {17, 25, 32, 38, 50, 63, 75, 87, 100, 115, 135};
     private Ball previewBall;	
     private int randomType;
+    static final Image[] TEXTURES = new Image[11];
+    
+    static {
+        for (int i = 0; i <= 10; i++) {
+            TEXTURES[i] = loadImage("textures/" + getTextureFileName(i));
+        }
+    }
 
     public BallGame() {
         balls = new ArrayList<>();
@@ -59,6 +70,36 @@ public class BallGame extends JFrame {
 
         setVisible(true);
     }
+    
+    private static String getTextureFileName(int type) {
+        return switch (type) {
+            case 0 -> "straw.png";
+            case 1 -> "peach.png";
+            case 2 -> "mangosteen.png";
+            case 3 -> "lemon.png";
+            case 4 -> "orange.png";
+            case 5 -> "kiwi.png";
+            case 6 -> "apple.png";
+            case 7 -> "pir.png";
+            case 8 -> "melon.png";
+            case 9 -> "pumpkin.png";
+            case 10 -> "watermelon.png";
+            default -> "straw.png";
+        };
+    }
+    
+    private static Image loadImage(String fileName) {
+        Image img = null;
+        InputStream inputStream = BallGame.class.getResourceAsStream("/suika/game/" + fileName);
+        try {
+            img = ImageIO.read(inputStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return img;
+    }
+    
+    
     
     private void updatePreviewBall() {
     	randomType = (int) (Math.random() * 6);
@@ -157,6 +198,7 @@ public class BallGame extends JFrame {
     }
 
     public static void main(String[] args) {
+    	System.setProperty("sun.java2d.opengl", "true");
         SwingUtilities.invokeLater(() -> new BallGame());
     }
 }
