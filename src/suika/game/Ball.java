@@ -8,7 +8,7 @@ import javax.imageio.ImageIO;
 
 public class Ball {
     private int x, y, size, type;
-    private static final int[] RADII = {17, 25, 32, 38, 50, 63, 75, 87, 100, 115, 135};
+    private static final int[] RADII = {27, 35, 42, 48, 60, 73, 85, 97, 110, 125, 145};
 
     public Ball(int x, int y, int size, int type) {
         this.x = x;
@@ -24,10 +24,10 @@ public class Ball {
     }
 
     private Image getTextureForType(int type) {
-        if (type >= 0 && type < BallGame.TEXTURES.length) {
-            return BallGame.TEXTURES[type];
+        if (type >= 0 && type < Suika.TEXTURES.length) {
+            return Suika.TEXTURES[type];
         } else {
-            return BallGame.TEXTURES[0];
+            return Suika.TEXTURES[0];
         }
     }
     
@@ -60,7 +60,7 @@ public class Ball {
 
 
     public void move() {
-        y += 5;
+        y += 8;
     }
 
     public boolean isAlive() {

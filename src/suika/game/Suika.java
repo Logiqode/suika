@@ -14,25 +14,29 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 @SuppressWarnings("serial")
-public class BallGame extends JFrame {
+public class Suika extends JFrame {
     private List<Ball> balls;
     private static final int PAD_X = 24;
     private static final int PAD_Y = 160;
     private static final int WIDTH = 570;
-    private static final int HEIGHT = 770;
+    private static final int HEIGHT = 800;
     private BufferedImage offScreenImage;
-    private static final int[] RADII = {17, 25, 32, 38, 50, 63, 75, 87, 100, 115, 135};
+    private static final int[] RADII = {27, 35, 42, 48, 60, 73, 85, 97, 110, 125, 145};
     private Ball previewBall;	
     private int randomType;
     static final Image[] TEXTURES = new Image[11];
+    private int score = 0;
+    private Image guide;
+    private static final int GAME_OVER_DELAY = 10000;
+    private boolean finish = false;
     
     static {
         for (int i = 0; i <= 10; i++) {
-            TEXTURES[i] = loadImage("textures/" + getTextureFileName(i));
+            TEXTURES[i] = loadImage("textures/" + getFileName(i));
         }
     }
 
-    public BallGame() {
+    public Suika() {
         balls = new ArrayList<>();
 
         Timer timer = new Timer(true);
@@ -42,14 +46,16 @@ public class BallGame extends JFrame {
                 updateGame();
                 repaint();
             }
-        }, 0, 4);
+        }, 0, 16);
         
         
         addMouseListener(new MouseAdapter() {
         	@Override
         	public void mouseClicked(MouseEvent e) {
+        		if(!finish) {
         	    balls.add(previewBall);
         	    updatePreviewBall();
+        		}
         	}
         });
         
@@ -71,7 +77,7 @@ public class BallGame extends JFrame {
         setVisible(true);
     }
     
-    private static String getTextureFileName(int type) {
+    private static String getFileName(int type) {
         return switch (type) {
             case 0 -> "straw.png";
             case 1 -> "peach.png";
@@ -90,7 +96,7 @@ public class BallGame extends JFrame {
     
     private static Image loadImage(String fileName) {
         Image img = null;
-        InputStream inputStream = BallGame.class.getResourceAsStream("/suika/game/" + fileName);
+        InputStream inputStream = Suika.class.getResourceAsStream("/suika/game/" + fileName);
         try {
             img = ImageIO.read(inputStream);
         } catch (IOException e) {
@@ -99,10 +105,24 @@ public class BallGame extends JFrame {
         return img;
     }
     
-    
+    private void drawGuide() {
+        guide = new BufferedImage(WIDTH, 40, BufferedImage.TYPE_INT_ARGB);
+        Graphics g = guide.getGraphics();
+
+        int guideX = PAD_X;
+        int guideY = 0;
+        int guideSpacing = 49;
+
+        for (int i = 0; i < TEXTURES.length; i++) {
+            Image texture = TEXTURES[i];
+            g.drawImage(texture, guideX, guideY, 30, 30, null);
+            guideX += guideSpacing;
+        }
+    }
     
     private void updatePreviewBall() {
     	randomType = (int) (Math.random() * 6);
+    	previewBall.setY(PAD_Y - RADII[randomType]);
     }
 
     private void updateGame() {
@@ -119,6 +139,7 @@ public class BallGame extends JFrame {
                 if (ball != other && ball.intersects(other)) {
                     if (canMerge(ball, other)) {
                         ball.merge(other);
+                        updateScore(ball.getType());
                     } else {
                         handleCollision(ball, other);
                     }
@@ -130,10 +151,21 @@ public class BallGame extends JFrame {
 
         balls.removeIf(ball -> !ball.isAlive());
 
-        if (type10Present) {
-            System.out.println("Congratulations! You obtained Suika. Game over!");
-            System.exit(0);
+        if (type10Present && !finish) {
+        	finish = true;
+        	System.out.println("Congratulations! You obtained Suika. Game over!");
+            gameOver();
         }
+    }
+    
+    private void gameOver() {
+        Timer timer = new Timer(true);
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                System.exit(0);
+            }
+        }, GAME_OVER_DELAY);
     }
 
 
@@ -176,15 +208,67 @@ public class BallGame extends JFrame {
             ball.setY(HEIGHT - PAD_Y - radius);
         }
     }
+    
+    private void updateScore(int ballType) {
+        switch (ballType) {
+            case 0:
+                score += 1;
+                break;
+            case 1:
+                score += 2;
+                break;
+            case 2:
+                score += 3;
+                break;
+            case 3:
+                score += 4;
+                break;
+            case 4:
+                score += 5;
+                break;
+            case 5:
+                score += 6;
+                break;
+            case 6:
+                score += 7;
+                break;
+            case 7:
+                score += 8;
+                break;
+            case 8:
+                score += 9;
+                break;
+            case 9:
+                score += 10;
+                break;
+            case 10:
+                score += 11;
+                break;
+                
+        }
+    }
 
     @Override
     public void paint(Graphics g) {
         Graphics offScreenGraphics = offScreenImage.getGraphics();
-        offScreenGraphics.setColor(Color.WHITE);
+        //background
+        offScreenGraphics.setColor(new Color(173, 216, 230));
         offScreenGraphics.fillRect(0, 0, WIDTH, HEIGHT);
-
+        
+        //score
         offScreenGraphics.setColor(Color.BLACK);
+        offScreenGraphics.drawString("Score: " + score, PAD_X, PAD_Y - 10);
+        
+        //box
+        offScreenGraphics.setColor(Color.DARK_GRAY);
         offScreenGraphics.drawRect(PAD_X, PAD_Y, WIDTH - 2 * PAD_X, HEIGHT - 2 * PAD_Y);
+        
+     // guide
+        if (guide == null) {
+            drawGuide();
+        }
+        offScreenGraphics.drawImage(guide, 0, HEIGHT - 40 , this);
+        
 
         if (previewBall != null) {
             previewBall.draw(offScreenGraphics);
@@ -199,6 +283,6 @@ public class BallGame extends JFrame {
 
     public static void main(String[] args) {
     	System.setProperty("sun.java2d.opengl", "true");
-        SwingUtilities.invokeLater(() -> new BallGame());
+        SwingUtilities.invokeLater(() -> new Suika());
     }
 }
